@@ -99,10 +99,15 @@ We need to add more lines as mentionned in the M2 question. One solution would b
 
 ## <a name="task-1"></a>Task 1: Add a process supervisor to run several processes
 
-**Deliverables**:
+> **1. Take a screenshot of the stats page of HAProxy at  <http://192.168.42.42:1936>. You should see your backend nodes. It should be really similar to the screenshot of the previous task.**
 
-1. Take a screenshot of the stats page of HAProxy at  <http://192.168.42.42:1936>. You should see your backend nodes. It should be really similar to the screenshot of the previous task.
-2. Describe your difficulties for this task and your understanding of what is happening during this task. Explain in your own words why are we installing a process supervisor. Do not hesitate to do more research and to find more articles on that topic to illustrate the problem.
+![haproxy](img/task-1/haproxy.png)
+
+> **2. Describe your difficulties for this task and your understanding of what is happening during this task. Explain in your own words why are we installing a process supervisor. Do not hesitate to do more research and to find more articles on that topic to illustrate the problem.**
+
+The life of a Docker container is tied to the life of the process which we start (e.g. haproxy, node) when creating the container. If this process stops, the container will also stop. This is called the entrypoint of the container. What we have done in this task is to replace this entrypoint by another process called S6 which gives us the ability to start and stop other processes in the container, without the container being stopped. For the moment, we have only told S6 to start either node or haproxy, depending on the Docker image.
+
+S6 will allow us to start a supervisor in each container which will report on the status of the "main" process (i.e. haproxy and node).
 
 ## <a name="task-2"></a>Task 2: Add a tool to manage membership in the web server cluster
 
