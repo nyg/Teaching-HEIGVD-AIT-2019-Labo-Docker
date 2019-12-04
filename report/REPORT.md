@@ -27,10 +27,55 @@ Screenshot of the HAProxy statistics page.
 
 > [M1] Do you think we can use the current solution for a production environment? What are the main problems when deploying it in a production environment?
 
+…
 
-* [M2] Describe what you need to do to add new webapp container to the infrastructure. Give the exact steps of what you have to do without modifiying the way the things are done. Hint: You probably have to modify some configuration and script files in a Docker image.
+> [M2] Describe what you need to do to add new webapp container to the infrastructure. Give the exact steps of what you have to do without modifiying the way the things are done. Hint: You probably have to modify some configuration and script files in a Docker image.
 
-* [M3] Based on your previous answers, you have detected some issues in the current solution. Now propose a better approach at a high level.
+We must add two environment variables in the `.env` file:
+
+```
+WEBAPP_3_NAME=s3
+WEBAPP_3_IP=192.168.42.33
+```
+
+Then we must add a new service in the `docker-compose.yml` file and add the two new environment variables to the haproxy service:
+
+```
+webapp3:
+  container_name: ${WEBAPP_3_NAME}
+  build:
+    context: ./webapp
+    dockerfile: Dockerfile
+  networks:
+    public_net:
+      ipv4_address: ${WEBAPP_3_IP}
+  ports:
+    - "4002:3000"
+  environment:
+    - TAG=${WEBAPP_3_NAME}
+    - SERVER_IP=${WEBAPP_3_IP}
+
+haproxy
+  ...
+  environment:
+    ...
+    - WEBAPP_3_IP=${WEBAPP_3_IP}
+```
+
+We must add a third node in the `haproxy.cfg` file:
+
+```
+backend nodes
+	server s3 ${WEBAPP_3_IP}:3000 check
+```
+
+In the `run-daemon.sh` and `run.sh` we must also add a line to handle the new node:
+
+```sh
+sed -i 's/<s3>/$S3_PORT_3000_TCP_ADDR/g' /usr/local/etc/haproxy/haproxy.cfg
+```
+
+> [M3] Based on your previous answers, you have detected some issues in the current solution. Now propose a better approach at a high level.
 
 * [M4] You probably noticed that the list of web application nodes is hardcoded in the load balancer configuration. How can we manage the web app nodes in a more dynamic fashion?
 
