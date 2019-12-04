@@ -16,7 +16,7 @@
 7. [Difficulties](#difficulties)
 8. [Conclusion](#conclusion)
 
-## <a name="introduction"></a>
+## <a name="introduction"></a>Introduction
 
 ## <a name="task-0"></a>Task 0: Identify issues and install the tools
 
