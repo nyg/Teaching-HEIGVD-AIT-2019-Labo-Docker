@@ -5,16 +5,16 @@
 
 ## Summary
 
-0. [Introduction](#introduction)
-0. [Identify issues and install the tools](#task-0)
-1. [Add a process supervisor to run several processes](#task-1)
-2. [Add a tool to manage membership in the web server cluster](#task-2)
-3. [React to membership changes](#task-3)
-4. [Use a template engine to easily generate configuration files](#task-4)
-5. [Generate a new load balancer configuration when membership changes](#task-5)
-6. [Make the load balancer automatically reload the new configuration](#task-6)
-7. [Difficulties](#difficulties)
-8. [Conclusion](#conclusion)
+* [Introduction](#introduction)
+* [Task 0: Identify issues and install the tools](#task-0)
+* [Task 1: Add a process supervisor to run several processes](#task-1)
+* [Task 2: Add a tool to manage membership in the web server cluster](#task-2)
+* [Task 3: React to membership changes](#task-3)
+* [Task 4: Use a template engine to easily generate configuration files](#task-4)
+* [Task 5: Generate a new load balancer configuration when membership changes](#task-5)
+* [Task 6: Make the load balancer automatically reload the new configuration](#task-6)
+* [Difficulties](#difficulties)
+* [Conclusion](#conclusion)
 
 ## <a name="introduction"></a>Introduction
 
