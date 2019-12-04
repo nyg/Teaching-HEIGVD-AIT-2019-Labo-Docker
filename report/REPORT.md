@@ -25,11 +25,11 @@ Screenshot of the HAProxy statistics page.
 
 ![haproxy](img/task-0/haproxy.png)
 
-> [M1] Do you think we can use the current solution for a production environment? What are the main problems when deploying it in a production environment?
+> **[M1] Do you think we can use the current solution for a production environment? What are the main problems when deploying it in a production environment?**
 
-…
+The main problem is that if a node goes down (or the load balancer itself), there is no supervisor that will bring them up again (or start new ones). Another issue is that, as we can see in the next question, adding another node is pretty cumbersome and cannot be done dynamically.
 
-> [M2] Describe what you need to do to add new webapp container to the infrastructure. Give the exact steps of what you have to do without modifiying the way the things are done. Hint: You probably have to modify some configuration and script files in a Docker image.
+> **[M2] Describe what you need to do to add new webapp container to the infrastructure. Give the exact steps of what you have to do without modifiying the way the things are done. Hint: You probably have to modify some configuration and script files in a Docker image.**
 
 We must add two environment variables in the `.env` file:
 
@@ -75,23 +75,27 @@ In the `run-daemon.sh` and `run.sh` we must also add a line to handle the new no
 sed -i 's/<s3>/$S3_PORT_3000_TCP_ADDR/g' /usr/local/etc/haproxy/haproxy.cfg
 ```
 
-> [M3] Based on your previous answers, you have detected some issues in the current solution. Now propose a better approach at a high level.
+> **[M3] Based on your previous answers, you have detected some issues in the current solution. Now propose a better approach at a high level.**
 
-* [M4] You probably noticed that the list of web application nodes is hardcoded in the load balancer configuration. How can we manage the web app nodes in a more dynamic fashion?
+A better approach would be for the load balancer to automatically detect new  nodes that are available and ready to receive requests. I would also be interesting to have a kind of supervisor that will detect if a node is down and if that happens start a new one.
 
-[M5] In the physical or virtual machines of a typical infrastructure we tend to have not only one main process (like the web server or the load balancer) running, but a few additional processes on the side to perform management tasks.
+> **[M4] You probably noticed that the list of web application nodes is hardcoded in the load balancer configuration. How can we manage the web app nodes in a more dynamic fashion?**
 
-For example to monitor the distributed system as a whole it is common to collect in one centralized place all the logs produced by the different machines. Therefore we need a process running on each machine that will forward the logs to the central place. (We could also imagine a central tool that reaches out to each machine to gather the logs. That's a push vs. pull problem.) It is quite common to see a push mechanism used for this kind of task.
+We could define a protocol where a node can broadcast its availability. When the load balancer detects a new node that is available, it will consider it when doing load balancing.
 
-Do you think our current solution is able to run additional management processes beside the main web server / load balancer process in a container? If no, what is missing / required to reach the goal? If yes, how to proceed to run for example a log forwarding process?
+> **[M5] In the physical or virtual machines of a typical infrastructure we tend to have not only one main process (like the web server or the load balancer) running, but a few additional processes on the side to perform management tasks.**
+>
+> **For example to monitor the distributed system as a whole it is common to collect in one centralized place all the logs produced by the different machines. Therefore we need a process running on each machine that will forward the logs to the central place. (We could also imagine a central tool that reaches out to each machine to gather the logs. That's a push vs. pull problem.) It is quite common to see a push mechanism used for this kind of task.**
+>
+> **Do you think our current solution is able to run additional management processes beside the main web server / load balancer process in a container? If no, what is missing / required to reach the goal? If yes, how to proceed to run for example a log forwarding process?**
 
-[M6] In our current solution, although the load balancer configuration is changing dynamically, it doesn't follow dynamically the configuration of our distributed system when web servers are added or removed. If we take a closer look at the run.sh script, we see two calls to sed which will replace two lines in the haproxy.cfg configuration file just before we start haproxy. You clearly see that the configuration file has two lines and the script will replace these two lines.
+We would need to update the Dockerfile of each node so this additional management process is started. We would also need to define specifically how the different instances of the process will communicate between each other.
 
-What happens if we add more web server nodes? Do you think it is really dynamic? It's far away from being a dynamic configuration. Can you propose a solution to solve this?
+> **[M6] In our current solution, although the load balancer configuration is changing dynamically, it doesn't follow dynamically the configuration of our distributed system when web servers are added or removed. If we take a closer look at the `run.sh` script, we see two calls to `sed` which will replace two lines in the `haproxy.cfg` configuration file just before we start HAProxy. You clearly see that the configuration file has two lines and the script will replace these two lines.**
+>
+> **What happens if we add more web server nodes? Do you think it is really dynamic? It's far away from being a dynamic configuration. Can you propose a solution to solve this?**
 
-
-1. Take a screenshot of the stats page of HAProxy at <http://192.168.42.42:1936>. You should see your backend nodes.
-2. Give the URL of your repository URL in the lab report.
+We need to add more lines as mentionned in the M2 question. One solution would be to add all possible IP in the configuration file. HAProxy will consider most of them down, but this is not a problem as long as it can detect when a new node is started. But this is not a very solution because HAProxy will send HEAD requests for all IPs, which is a waste of resources.
 
 ## <a name="task-1"></a>Task 1: Add a process supervisor to run several processes
 
