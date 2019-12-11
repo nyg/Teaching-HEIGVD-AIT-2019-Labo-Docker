@@ -597,7 +597,7 @@ do that with the creation of the service folder in `ha/services` and
 `webapp/services`. Use the following command to do that.
 
 ```bash
-mkdir /ha/services/serf /webapp/services/serf
+mkdir ha/services/serf webapp/services/serf
 ```
 
 You should have the following folders structure:
@@ -625,8 +625,8 @@ In each directory, create an executable file called `run`. You can
 achieve that by the following commands:
 
 ```bash
-touch /ha/services/serf/run && chmod +x /ha/services/serf/run
-touch /webapp/services/serf/run && chmod +x /webapp/services/serf/run
+touch ha/services/serf/run && chmod +x ha/services/serf/run
+touch webapp/services/serf/run && chmod +x webapp/services/serf/run
 ```
 
 In the `ha/services/serf/run` file, add the following script. This
@@ -756,7 +756,7 @@ At the moment the `member-join` and `member-leave` scripts are missing. We will 
 them in a moment. These two scripts will manage the load balancer configuration.
 
 And finally, we set a tag `role=<rolename>` to our load balancer. The `$ROLE` is
-the environment variable that we have in the Docker files. With the role, we will
+the environment variable that we have in the Dockerfile. With the role, we will
 be able to differentiate between the `balancer` and the `backend` nodes.
 
 ```bash
@@ -864,7 +864,7 @@ this important topic.
 So to start the `ha` container the command becomes:
 
 ```bash
-docker run -d -p 80:80 -p 1936:1936 -p 9999:9999 --network brige --link s1 --link s2 --name ha <imageName>
+docker run -d -p 80:80 -p 1936:1936 -p 9999:9999 --network heig --link s1 --link s2 --name ha <imageName>
 ```
 
 And for the backend nodes:
@@ -903,8 +903,8 @@ docker run -d --network heig --name s1 <imageName>
     clean these two files (and folder in case of web application).
 
     ```bash
-    rm /ha/scripts/run.sh
-    rm -r /webapp/scripts
+    rm -r ha/scripts
+    rm -r webapp/scripts
     ```
 
 **Deliverables**:
