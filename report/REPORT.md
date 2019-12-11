@@ -113,21 +113,15 @@ S6 will allow us to start a supervisor in each container which will report on th
 
 **Deliverables**:
 
-1. Provide the docker log output for each of the containers: `ha`, `s1` and `s2`. You need to create a folder `logs` in your repository to store the files separately from the lab report. For each lab task create a folder and name it using the task number. No need to create a folder when there are no logs.
+> **1. Provide the docker log output for each of the containers: `ha`, `s1` and `s2`.**
 
-   Example:
+There are two folders in the `logs/task-2` folder:
+* `order-ha-s1-s2` contains the logs of ha, s1, s2 when started in this order,
+* `order-s1-s2-ha` contains the logs of s1, s2, ha when started in this order.
 
-   ```
-   |-- root folder
-     |-- logs
-       |-- task 1
-       |-- task 3
-       |-- ...
-   ```
+> **2. Give the answer to the question about the existing problem with the current solution.**
 
-2. Give the answer to the question about the existing problem with the current solution.
-
-3. Give an explanation on how `Serf` is working. Read the official website to get more details about the `GOSSIP` protocol used in `Serf`. Try to find other solutions that can be used to solve similar situations where we need some auto-discovery mechanism.
+> **3. Give an explanation on how `Serf` is working. Read the official website to get more details about the `GOSSIP` protocol used in `Serf`. Try to find other solutions that can be used to solve similar situations where we need some auto-discovery mechanism.**
 
 ## <a name="task-3"></a>Task 3: React to membership changes
 
