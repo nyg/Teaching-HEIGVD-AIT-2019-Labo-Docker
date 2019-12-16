@@ -6,16 +6,18 @@
 
 ## Summary
 
-* [Introduction](#introduction)
-* [Task 0: Identify issues and install the tools](#task-0)
-* [Task 1: Add a process supervisor to run several processes](#task-1)
-* [Task 2: Add a tool to manage membership in the web server cluster](#task-2)
-* [Task 3: React to membership changes](#task-3)
-* [Task 4: Use a template engine to easily generate configuration files](#task-4)
-* [Task 5: Generate a new load balancer configuration when membership changes](#task-5)
-* [Task 6: Make the load balancer automatically reload the new configuration](#task-6)
-* [Difficulties](#difficulties)
-* [Conclusion](#conclusion)
+- [Lab 04 – Docker](#lab-04-%e2%80%93-docker)
+  - [Summary](#summary)
+  - [Introduction](#introduction)
+  - [Task 0: Identify issues and install the tools](#task-0-identify-issues-and-install-the-tools)
+  - [Task 1: Add a process supervisor to run several processes](#task-1-add-a-process-supervisor-to-run-several-processes)
+  - [Task 2: Add a tool to manage membership in the web server cluster](#task-2-add-a-tool-to-manage-membership-in-the-web-server-cluster)
+  - [Task 3: React to membership changes](#task-3-react-to-membership-changes)
+  - [Task 4: Use a template engine to easily generate configuration files](#task-4-use-a-template-engine-to-easily-generate-configuration-files)
+  - [Task 5: Generate a new load balancer configuration when membership changes](#task-5-generate-a-new-load-balancer-configuration-when-membership-changes)
+  - [Task 6: Make the load balancer automatically reload the new configuration](#task-6-make-the-load-balancer-automatically-reload-the-new-configuration)
+  - [Difficulties found](#difficulties-found)
+  - [Conclusion](#conclusion)
 
 ## <a name="introduction"></a>Introduction
 
@@ -122,6 +124,22 @@ There are two folders in the `logs/task-2` folder:
 > **2. Give the answer to the question about the existing problem with the current solution.**
 
 > **3. Give an explanation on how `Serf` is working. Read the official website to get more details about the `GOSSIP` protocol used in `Serf`. Try to find other solutions that can be used to solve similar situations where we need some auto-discovery mechanism.**
+
+"Serf is a tool for cluster membership, failure detection, and orchestration that is decentralized, fault-tolerant and higly available" ([source](https://www.serf.io/intro/index.html))). Serf uses an upgraded version of SWIM (Scalable Weakly-consistent Infection-style Process Group Membership Protocol) which they upgraded themself to increase propagation speed and convergence rate. 
+
+What does it really means ? 
+Serf keeps an up to date cluster membership list and is able to execute custom scripts when this list changes. A script could be to notify a load balancer when a web server is going down (or going up again). This implies that Serf detects failed nodes withing a short amount of time and can notify the rest of the cluster. Serf will attempt after a node went down to reconnect to this node every X time. Since Serf can broadcast custom events Serf is really flexible and conveniant.
+    
+What is the Gossip Protocol ?
+The Gossip Protocol is how all nodes in a cluster are communicating. This protocol is named that way because of how the failure detection is done. If a node fails to ack within a certain amount of time all other node will try to contact the failing node. If the failing node still doesn't reply the node will be marked as "suspicious" and this information will be gossiped to the whole cluster. A "suspicious" node will still be considered a member of the cluster. However if this node doesn't contest its status within a configurable amount of time it will be considered dead and then again, this information will be gossiped to the cluster.    
+Gossip is done over UDP over a fixed fanout and interval. Each node will send to another random node and exchange all his informations in order to spread the gossip. Complete state changes can also be done using TCP but are much less used than the traditionnal Gossip over UDP.
+
+Serf versus other solutions :  
+ZooKeeper, doozerd and etcd are solutions which have a different implementation than Serf. They are however much more complex to use. They need to use librairies on top of their implementation in order to build the features they need. Additionnaly Serf is not mutually exclusive with any of these strongly conistent systems and can be combined to create a more scalable and fault tolerant implementation.
+Serf can also be compared to some configuration management tools such as Chef and Puppet that also provide a way to do a similar work than Serf. For example if you generate a config file for a load balancer to include the web servers it will be used to manage membership. However such practice isn't recommended since those tools are not designed to propagate information quickly, handle failure detection or tolerate network partitions. Once again, Serf can be use with such tools to improve global efficiency. 
+Another solution worth mentionning is Consul. Consul is a tool for service discovery and configuration which provides high level features such as service discovery, health checking and key/value storage. Consul is using a centralized server to manage the datacenter (where Serf isn't). Consul is providing los of high-level features which is only implemented in Serf as low-level features. Consul internal gossip protocol is built on the Serf librairy and they extended it in a way to improve it. 
+[source](https://www.serf.io/intro/vs-other-sw.html)
+
 
 ## <a name="task-3"></a>Task 3: React to membership changes
 
