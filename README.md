@@ -1517,20 +1517,12 @@ tasks**)
 
 ### <a name="task-6"></a>Task 6: Make the load balancer automatically reload the new configuration
 
-> Finally, we have all the pieces in place to finish our
-  solution. HAProxy will be reconfigured automatically when web app
-  nodes are leaving/joining the cluster. We will solve the problems
-  you have discussed in [M1 - 3](#M1).  Again, the solution built
-  in this lab is only one example of tools and techniques we can use to
-  solve this kind of situation. There are several other ways.
+> Finally, we have all the pieces in place to finish our solution. HAProxy will be reconfigured automatically when web app nodes are leaving/joining the cluster. We will solve the problems
+  you have discussed in [M1 - 3](#M1).  Again, the solution built in this lab is only one example of tools and techniques we can use to solve this kind of situation. There are several other ways.
 
-The only thing missing now is to make sure the configuration of
-HAProxy is up-to-date and taken into account by HAProxy.
+The only thing missing now is to make sure the configuration of HAProxy is up-to-date and taken into account by HAProxy.
 
-We will try to make HAProxy reload his config with minimal
-downtime. At the moment, we will replace the line `TODO: [CFG] Replace
-this command` in [ha/services/ha/run](ha/services/ha/run) by the
-following script part. As usual, take the time to read the comments.
+We will try to make HAProxy reload his config with minimal downtime. At the moment, we will replace the line `TODO: [CFG] Replace this command` in [ha/services/ha/run](ha/services/ha/run) by the following script part. As usual, take the time to read the comments.
 
 ```bash
 #!/usr/bin/with-contenv bash
