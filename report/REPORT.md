@@ -153,29 +153,23 @@ Another solution worth mentionning is Consul. Consul is a tool for service disco
 
 **Deliverables**:
 
-1. You probably noticed when we added `xz-utils`, we have to rebuild the whole image which took some time. What can we do to mitigate that? Take a look at the Docker documentation on [image layers](https://docs.docker.com/engine/userguide/storagedriver/imagesandcontainers/#images-and-layers). Tell us about the pros and cons to merge as much as possible of the command. In other words, compare:
+> **1. You probably noticed when we added `xz-utils`, we have to rebuild the whole image which took some time. What can we do to mitigate that? Take a look at the Docker documentation on [image layers](https://docs.docker.com/engine/userguide/storagedriver/imagesandcontainers/#images-and-layers). Tell us about the pros and cons to merge as much as possible of the command**
 
-  ```
-  RUN command 1
-  RUN command 2
-  RUN command 3
-  ```
+Everytime you write a new line (a command) in a dockerfile it adds a new layer to the image. Each new `layer` correspond to the filesystem change of the image before and after the new command. This is a really important point to consider since each image will be stored somewhere and consume disk storage so in order to reduce the space consumption, when you are working on the same file you should do it in the same command (example :  download source code, extract it, compile it into a binary, and then delete the tgz and source files at the end). Otherwise, if you are doing it in different command (for instance deleting the tgz in a another run command) the file will still be stored on the first layer and then deleted on the second so the resulting filesystem will be without it.
 
-  vs.
+The second thing to consider is `layer caching`. Docker uses a `layer cache` to optimize the process of building images (meaning to make it faster). The first time each layer is build docker also create a layer cache that will be used the next time a build is make. Therefore if nothing as been change on the previous commands docker won't build them a second time but will use the "cached" layer. This is mostly true for the `RUN`. However, docker will check everytime that there is a `COPY` and `ADD` command that the file is either up to date. If it is docker will use once again the cached layer, otherwise if the content if different than all subsequent commands will be executed without using the layer cache. This behavior implies that every component that will be updated very rarely should be high up in the Dockerfile and in the other hand that command that may change frequently should be put at the end of the dockerfile.
 
-  ```
-  RUN command 1 && command 2 && command 3
-  ```
+`squashing` is an option available during the build. Once the build is complete, Docker creates a new image loading all the differences from each layer into a single new layer. Docker also create cached layer to each individual layer to accelerate next build.
 
-  There are also some articles about techniques to reduce the image size. Try to find them. They are talking about `squashing` or `flattening` images.
+`flattening` has the same goal, create a single resulting layer from an image that could have been build with multiple layer, to do so, simply run `docker export <image> | docker import <resulting image>` 
 
-2. Propose a different approach to architecture our images to be able to reuse as much as possible what we have done. Your proposition should also try to avoid as much as possible repetitions between your images.
+> 2. **Propose a different approach to architecture our images to be able to reuse as much as possible what we have done. Your proposition should also try to avoid as much as possible repetitions between your images.**
 
-3. Provide the `/tmp/haproxy.cfg` file generated in the `ha` container after each step.  Place the output into the `logs` folder like you already did for the Docker logs in the previous tasks. Three files are expected.
+> 3. **Provide the `/tmp/haproxy.cfg` file generated in the `ha` container after each step.  Place the output into the `logs` folder like you already did for the Docker logs in the previous tasks. Three files are expected. In addition, provide a log file containing the output of the `docker ps` console and another file (per container) with `docker inspect <container>`. Four files are expected.**
+
+Provided in the logs folder.
    
-   In addition, provide a log file containing the output of the `docker ps` console and another file (per container) with `docker inspect <container>`. Four files are expected.
-   
-4. Based on the three output files you have collected, what can you say about the way we generate it? What is the problem if any?
+> 4. **Based on the three output files you have collected, what can you say about the way we generate it? What is the problem if any?**
 
 ## <a name="task-5"></a>Task 5: Generate a new load balancer configuration when membership changes
 
