@@ -101,11 +101,11 @@ We need to add more lines as mentionned in the M2 question. One solution would b
 
 ## <a name="task-1"></a>Task 1: Add a process supervisor to run several processes
 
-> **1. Take a screenshot of the stats page of HAProxy at  <http://192.168.42.42:1936>. You should see your backend nodes. It should be really similar to the screenshot of the previous task.**
+> 1. **Take a screenshot of the stats page of HAProxy at  <http://192.168.42.42:1936>. You should see your backend nodes. It should be really similar to the screenshot of the previous task.**
 
 ![haproxy](img/task-1/haproxy.png)
 
-> **2. Describe your difficulties for this task and your understanding of what is happening during this task. Explain in your own words why are we installing a process supervisor. Do not hesitate to do more research and to find more articles on that topic to illustrate the problem.**
+> 2. **Describe your difficulties for this task and your understanding of what is happening during this task. Explain in your own words why are we installing a process supervisor. Do not hesitate to do more research and to find more articles on that topic to illustrate the problem.**
 
 The life of a Docker container is tied to the life of the process which we start (e.g. haproxy, node) when creating the container. If this process stops, the container will also stop. This is called the entrypoint of the container. What we have done in this task is to replace this entrypoint by another process called S6 which gives us the ability to start and stop other processes in the container, without the container being stopped. For the moment, we have only told S6 to start either node or haproxy, depending on the Docker image.
 
@@ -113,47 +113,50 @@ S6 will allow us to start a supervisor in each container which will report on th
 
 ## <a name="task-2"></a>Task 2: Add a tool to manage membership in the web server cluster
 
-**Deliverables**:
-
-> **1. Provide the docker log output for each of the containers: `ha`, `s1` and `s2`.**
+> 1. **Provide the docker log output for each of the containers: `ha`, `s1` and `s2`.**
 
 There are two folders in the `logs/task-2` folder:
 * `order-ha-s1-s2` contains the logs of ha, s1, s2 when started in this order,
 * `order-s1-s2-ha` contains the logs of s1, s2, ha when started in this order.
 
-> **2. Give the answer to the question about the existing problem with the current solution.**
+> 2. **Give the answer to the question about the existing problem with the current solution.**
 
-> **3. Give an explanation on how `Serf` is working. Read the official website to get more details about the `GOSSIP` protocol used in `Serf`. Try to find other solutions that can be used to solve similar situations where we need some auto-discovery mechanism.**
+> 3. **Give an explanation on how `Serf` is working. Read the official website to get more details about the `GOSSIP` protocol used in `Serf`. Try to find other solutions that can be used to solve similar situations where we need some auto-discovery mechanism.**
 
-"Serf is a tool for cluster membership, failure detection, and orchestration that is decentralized, fault-tolerant and higly available" ([source](https://www.serf.io/intro/index.html))). Serf uses an upgraded version of SWIM (Scalable Weakly-consistent Infection-style Process Group Membership Protocol) which they upgraded themself to increase propagation speed and convergence rate. 
+"Serf is a tool for cluster membership, failure detection, and orchestration that is decentralized, fault-tolerant and higly available" ([source](https://www.serf.io/intro/index.html)). Serf uses an upgraded version of SWIM (Scalable Weakly-consistent Infection-style Process Group Membership Protocol) which they upgraded themself to increase propagation speed and convergence rate. 
 
-What does it really means ? 
-Serf keeps an up to date cluster membership list and is able to execute custom scripts when this list changes. A script could be to notify a load balancer when a web server is going down (or going up again). This implies that Serf detects failed nodes withing a short amount of time and can notify the rest of the cluster. Serf will attempt after a node went down to reconnect to this node every X time. Since Serf can broadcast custom events Serf is really flexible and conveniant.
-    
-What is the Gossip Protocol ?
-The Gossip Protocol is how all nodes in a cluster are communicating. This protocol is named that way because of how the failure detection is done. If a node fails to ack within a certain amount of time all other node will try to contact the failing node. If the failing node still doesn't reply the node will be marked as "suspicious" and this information will be gossiped to the whole cluster. A "suspicious" node will still be considered a member of the cluster. However if this node doesn't contest its status within a configurable amount of time it will be considered dead and then again, this information will be gossiped to the cluster.    
+**What does it really means ?** Serf keeps an up to date cluster membership list and is able to execute custom scripts when this list changes. A script could be to notify a load balancer when a web server is going down (or going up again). This implies that Serf detects failed nodes withing a short amount of time and can notify the rest of the cluster. Serf will attempt after a node went down to reconnect to this node every X time. Since Serf can broadcast custom events Serf is really flexible and conveniant.
+
+**What is the Gossip Protocol ?** The Gossip Protocol is how all nodes in a cluster are communicating. This protocol is named that way because of how the failure detection is done. If a node fails to ack within a certain amount of time all other node will try to contact the failing node. If the failing node still doesn't reply the node will be marked as "suspicious" and this information will be gossiped to the whole cluster. A "suspicious" node will still be considered a member of the cluster. However if this node doesn't contest its status within a configurable amount of time it will be considered dead and then again, this information will be gossiped to the cluster.
+
 Gossip is done over UDP over a fixed fanout and interval. Each node will send to another random node and exchange all his informations in order to spread the gossip. Complete state changes can also be done using TCP but are much less used than the traditionnal Gossip over UDP.
 
-Serf versus other solutions :  
-ZooKeeper, doozerd and etcd are solutions which have a different implementation than Serf. They are however much more complex to use. They need to use librairies on top of their implementation in order to build the features they need. Additionnaly Serf is not mutually exclusive with any of these strongly conistent systems and can be combined to create a more scalable and fault tolerant implementation.
-Serf can also be compared to some configuration management tools such as Chef and Puppet that also provide a way to do a similar work than Serf. For example if you generate a config file for a load balancer to include the web servers it will be used to manage membership. However such practice isn't recommended since those tools are not designed to propagate information quickly, handle failure detection or tolerate network partitions. Once again, Serf can be use with such tools to improve global efficiency. 
-Another solution worth mentionning is Consul. Consul is a tool for service discovery and configuration which provides high level features such as service discovery, health checking and key/value storage. Consul is using a centralized server to manage the datacenter (where Serf isn't). Consul is providing los of high-level features which is only implemented in Serf as low-level features. Consul internal gossip protocol is built on the Serf librairy and they extended it in a way to improve it. 
-[source](https://www.serf.io/intro/vs-other-sw.html)
+**Serf versus other solutions :** ZooKeeper, doozerd and etcd are solutions which have a different implementation than Serf. They are however much more complex to use. They need to use librairies on top of their implementation in order to build the features they need. Additionnaly Serf is not mutually exclusive with any of these strongly conistent systems and can be combined to create a more scalable and fault tolerant implementation.
 
+Serf can also be compared to some configuration management tools such as Chef and Puppet that also provide a way to do a similar work than Serf. For example if you generate a config file for a load balancer to include the web servers it will be used to manage membership. However such practice isn't recommended since those tools are not designed to propagate information quickly, handle failure detection or tolerate network partitions. Once again, Serf can be use with such tools to improve global efficiency.
+
+Another solution worth mentionning is Consul. Consul is a tool for service discovery and configuration which provides high level features such as service discovery, health checking and key/value storage. Consul is using a centralized server to manage the datacenter (where Serf isn't). Consul is providing los of high-level features which is only implemented in Serf as low-level features. Consul internal gossip protocol is built on the Serf librairy and they extended it in a way to improve it.
+
+[source](https://www.serf.io/intro/vs-other-sw.html)
 
 ## <a name="task-3"></a>Task 3: React to membership changes
 
-**Deliverables**:
+> 1. **Provide the docker log output for each of the containers:  `ha`, `s1` and `s2`. Put your logs in the `logs` directory you created in the previous task.**
 
-1. Provide the docker log output for each of the containers:  `ha`, `s1` and `s2`. Put your logs in the `logs` directory you created in the previous task.
+Provided in the logs folder:
+* ha-docker-run.log,
+* s1-docker-run.log,
+* s2-docker-run.log,
+* ha-after-s1-s2.log.
 
-3. Provide the logs from the `ha` container gathered directly from the `/var/log/serf.log` file present in the container. Put the logs in the `logs` directory in your repo.
+> 2. **Provide the logs from the `ha` container gathered directly from the `/var/log/serf.log` file present in the container. Put the logs in the `logs` directory in your repo.**
+
+Provided in the logs folder:
+* serf.log
 
 ## <a name="task-4"></a>Task 4: Use a template engine to easily generate configuration files
 
-**Deliverables**:
-
-> **1. You probably noticed when we added `xz-utils`, we have to rebuild the whole image which took some time. What can we do to mitigate that? Take a look at the Docker documentation on [image layers](https://docs.docker.com/engine/userguide/storagedriver/imagesandcontainers/#images-and-layers). Tell us about the pros and cons to merge as much as possible of the command**
+> 1. **You probably noticed when we added `xz-utils`, we have to rebuild the whole image which took some time. What can we do to mitigate that? Take a look at the Docker documentation on [image layers](https://docs.docker.com/engine/userguide/storagedriver/imagesandcontainers/#images-and-layers). Tell us about the pros and cons to merge as much as possible of the command**
 
 Everytime you write a new line (a command) in a dockerfile it adds a new layer to the image. Each new `layer` correspond to the filesystem change of the image before and after the new command. This is a really important point to consider since each image will be stored somewhere and consume disk storage so in order to reduce the space consumption, when you are working on the same file you should do it in the same command (example :  download source code, extract it, compile it into a binary, and then delete the tgz and source files at the end). Otherwise, if you are doing it in different command (for instance deleting the tgz in a another run command) the file will still be stored on the first layer and then deleted on the second so the resulting filesystem will be without it.
 
@@ -168,37 +171,54 @@ The second thing to consider is `layer caching`. Docker uses a `layer cache` to 
 > 3. **Provide the `/tmp/haproxy.cfg` file generated in the `ha` container after each step.  Place the output into the `logs` folder like you already did for the Docker logs in the previous tasks. Three files are expected. In addition, provide a log file containing the output of the `docker ps` console and another file (per container) with `docker inspect <container>`. Four files are expected.**
 
 Provided in the logs folder.
-   
+
 > 4. **Based on the three output files you have collected, what can you say about the way we generate it? What is the problem if any?**
 
 ## <a name="task-5"></a>Task 5: Generate a new load balancer configuration when membership changes
 
-**Deliverables**:
+> 1. **Provide the file `/usr/local/etc/haproxy/haproxy.cfg` generated in the `ha` container after each step. Three files are expected. In addition, provide a log file containing the output of the `docker ps` console and another file (per container) with `docker inspect <container>`. Four files are expected.**
 
-1. Provide the file `/usr/local/etc/haproxy/haproxy.cfg` generated in the `ha` container after each step. Three files are expected.
-  
-   In addition, provide a log file containing the output of the `docker ps` console and another file (per container) with `docker inspect <container>`. Four files are expected.
+Provided in the logs folder:
+* haproxy.cfg,
+* haproxy-after-s1.cfg,
+* haproxy-after-s2.cfg,
+* docker-ps.log,
+* docker-inspect-ha.log,
+* docker-inspect-s1.log,
+* docker-inspect-s2.log.
 
-2. Provide the list of files from the `/nodes` folder inside the `ha` container. One file expected with the command output.
+> 2. **Provide the list of files from the `/nodes` folder inside the `ha` container. One file expected with the command output.**
 
-3. Provide the configuration file after you stopped one container and the list of nodes present in the `/nodes` folder. One file expected with the command output. Two files are expected.
-  
-    In addition, provide a log file containing the output of the `docker ps` console. One file expected.
+Provided in the logs folder (nodes.txt).
 
-4. (Optional:) Propose a different approach to manage the list of backend nodes. You do not need to implement it. You can also propose your own tools or the ones you discovered online. In that case, do not forget to cite your references.
+> 3. **Provide the configuration file after you stopped one container and the list of nodes present in the `/nodes` folder. One file expected with the command output. Two files are expected. In addition, provide a log file containing the output of the `docker ps` console. One file expected.**
+
+Provided in the logs folder:
+* nodes-after-kill-s1.txt,
+* haproxy-after-kill-s1.cfg,
+* docker-ps-after-kill-s1.log.
 
 ## <a name="task-6"></a>Task 6: Make the load balancer automatically reload the new configuration
 
-**Deliverables**:
+> 1. **Take a screenshots of the HAProxy stat page showing more than 2 web applications running. Additional screenshots are welcome to see a sequence of experimentations like shutting down a node and starting more nodes.**
 
-1. Take a screenshots of the HAProxy stat page showing more than 2 web applications running. Additional screenshots are welcome to see a sequence of experimentations like shutting down a node and starting
-   more nodes.
-   
-   Also provide the output of `docker ps` in a log file. At least one file is expected. You can provide one output per step of your experimentation according to your screenshots.
-   
-2. Give your own feelings about the final solution. Propose improvements or ways to do the things differently. If any, provide references to your readings for the improvements.
+At first we started 4 nodes in addition to the ha backend.
 
-3. (Optional:) Present a live demo where you add and remove a backend container.
+![](img/task-6/1-haproxy-4-nodes.png)
+
+Then we killed two nodes (s1 and s2).
+
+![](img/task-6/2-haproxy-2-nodes.png)
+
+Finally, we started a new node (s5).
+
+![](img/task-6/3-haproxy-3-nodes.png)
+
+> **Also provide the output of `docker ps` in a log file. At least one file is expected.**
+
+Provided in the logs folder (task-6).
+
+> 2. **Give your own feelings about the final solution. Propose improvements or ways to do the things differently. If any, provide references to your readings for the improvements.**
 
 ## <a name="difficulties"></a>Difficulties found
 
