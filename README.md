@@ -1082,21 +1082,14 @@ continue to run.
   which is often used in other contexts (like web templates, mail templates, ...).
   We will be able to solve the issue raised in [M6](#M6).
 
-There are several ways to generate a configuration file from variables
-in a dynamic fashion. In this lab we decided to use `NodeJS` and
-`Handlebars` for the template engine.
+There are several ways to generate a configuration file from variables in a dynamic fashion. In this lab we decided to use `NodeJS` and `Handlebars` for the template engine.
 
 According to Wikipedia:
 
-  > A template engine is a software designed to combine one or more templates
-    with a data model to produce one or more result documents
+  > A template engine is a software designed to combine one or more templates with a data model to produce one or more result documents
 
-In our case our template is the `HAProxy` configuration file in which
-we put placeholders written in the template language. Our data model
-is the data provided by the handler scripts of `Serf`. And the
-resulting document coming out of the template engine is a
-configuration file that HA proxy can understand where the placeholders
-have been replaced with the data.
+In our case our template is the `HAProxy` configuration file in which we put placeholders written in the template language. Our data model is the data provided by the handler scripts of `Serf`. And the
+resulting document coming out of the template engine is a configuration file that HA proxy can understand where the placeholders have been replaced with the data.
 
 **References**:
 
@@ -1104,11 +1097,9 @@ have been replaced with the data.
   - [Handlebars](http://handlebarsjs.com/)
   - [Template Engine definition](https://en.wikipedia.org/wiki/Template_processor)
 
-To be able to use `Handlebars` as a template engine in our `ha`
-container, we need to install `NodeJS` and `Handlebars`.
+To be able to use `Handlebars` as a template engine in our `ha` container, we need to install `NodeJS` and `Handlebars`.
 
-To install `NodeJS`, just replace `TODO: [HB] Install NodeJS` by the
-following content:
+To install `NodeJS`, just replace `TODO: [HB] Install NodeJS` by the following content:
 
 ```
 # Install NodeJS
@@ -1117,53 +1108,34 @@ RUN curl -sSLo /tmp/node.tar.xz https://nodejs.org/dist/v4.4.4/node-v4.4.4-linux
   && rm -f /tmp/node.tar.xz
 ```
 
-We also need to update the base tools installed in the image to be
-able to extract the `NodeJS` archive. So we need to add `xz-utils` to
-the `apt-get install` present above the line `TODO: [HB] Update to
-install required tool to install NodeJS`.
+We also need to update the base tools installed in the image to be able to extract the `NodeJS` archive. So we need to add `xz-utils` to the `apt-get install` present above the line `TODO: [HB] Update to install required tool to install NodeJS`.
 
 **Remarks**:
 
-  - You probably noticed that we have the webapp image with a `NodeJS`
-    application.  So the image already contains `NodeJS`. We have
-    based our backend image on an existing image that provides an
-    installation of `NodeJS`. In our `ha` image, we take a shortcut
-    and do a manual installation of `NodeJS`.
-
-    This manual install has at least one bad practice: In the original
-    image of `NodeJS` they download of the required files and then
-    check the downloads against a `GPG` signatures. We have skipped
-    this part in our `ha`image, but in practice you should check every
-    download to avoid issues like the `man in the middle` attack.
-
-    You can take a look at the following links if you are interested
-    in this topic:
-
+  - You probably noticed that we have the webapp image with a `NodeJS` application.  So the image already contains `NodeJS`. We have based our backend image on an existing image that provides an installation of `NodeJS`. In our `ha` image, we take a shortcut and do a manual installation of `NodeJS`.
+    
+    This manual install has at least one bad practice: In the original image of `NodeJS` they download of the required files and then check the downloads against a `GPG` signatures. We have skipped
+    this part in our `ha` image, but in practice you should check every download to avoid issues like the `man in the middle` attack.
+    
+You can take a look at the following links if you are interested in this topic:
+    
       - [NodeJS official Dockerfile](https://github.com/nodejs/docker-node/blob/ae9e2d4f04a0fa82261df86fd9556a76cefc020d/6.3/wheezy/Dockerfile#L4-L26)
       - [GPG](https://en.wikipedia.org/wiki/GNU_Privacy_Guard)
       - [Man in the middle attack](https://en.wikipedia.org/wiki/Man-in-the-middle_attack)
-
-    The other reason why we have to manually install `NodeJS` is that
-    we cannot inherit from two images at the same time. As in our `ha`
-    image we already inherit `FROM` the `haproxy` official image we
-    cannot use the `NodeJS` image at the same time.
-
-    In fact, the `FROM` instruction from Docker works like the Java
-    inheritance model. You can inherit only from one super class at a
-    time. For example, we have the following hierarchy for our HAProxy
-    image.
+    
+The other reason why we have to manually install `NodeJS` is that we cannot inherit from two images at the same time. As in our `ha` image we already inherit `FROM` the `haproxy` official image we cannot use the `NodeJS` image at the same time.
+    
+    In fact, the `FROM` instruction from Docker works like the Java inheritance model. You can inherit only from one super class at a time. For example, we have the following hierarchy for our HAProxy image.
 
     <a href="https://github.com/SoftEng-HEIGVD/Teaching-HEIGVD-AIT-2016-Labo-Docker/blob/master/assets/img/image-hierarchy.png">
       <img src="https://github.com/SoftEng-HEIGVD/Teaching-HEIGVD-AIT-2016-Labo-Docker/raw/master/assets/img/image-hierarchy.png" alt="HAProxy Image Hierarchy" width="600">
     </a>
 
     Here is the reference to the Docker documentation of the `FROM` command:
-
+    
       - [FROM](https://docs.docker.com/engine/reference/builder/#/from)
 
-It's time to install `Handlebars` and a small command line tool
-`handlebars-cmd` to make it work properly. For that replace the `TODO:
-[HB] Install Handlebars and cli` by this Docker instruction:
+It's time to install `Handlebars` and a small command line tool `handlebars-cmd` to make it work properly. For that replace the `TODO: [HB] Install Handlebars and cli` by this Docker instruction:
 
 ```
 # Install the handlebars-cmd node module and its dependencies
@@ -1172,23 +1144,17 @@ RUN npm install -g handlebars-cmd
 
 **Remarks**:
 
-  - [NPM](http://npmjs.org/) is a package manager for `NodeJS`. Like
-    other package managers, one of its tasks is to manage the
-    dependencies of a package. That's the reason why we have to
-    install only `handlebars-cmd`. This package has the `handlebars`
-    package as one of its dependencies.
+  - [NPM](http://npmjs.org/) is a package manager for `NodeJS`. Like other package managers, one of its tasks is to manage the dependencies of a package. That's the reason why we have to install only `handlebars-cmd`. This package has the `handlebars` package as one of its dependencies.
 
 Now we will update the handler scripts to use `Handlebars`. For the moment, we
 will just play with a simple template. So, first create a file in `ha/config` called
 `haproxy.cfg.hb` with a simple template content. Use the following command for that:
 
 ```bash
-echo "Container {{ name }} has joined the Serf cluster with the following IP address: {{ ip }}" >> /ha/config/haproxy.cfg.hb
+echo "Container {{ name }} has joined the Serf cluster with the following IP address: {{ ip }}" >> ha/config/haproxy.cfg.hb
 ```
 
-We need our template present in our `ha` image. We have to add the following
-Docker instructions for that. Let's replace `TODO: [HB] Copy the haproxy configuration template`
-in [ha/Dockerfile](ha/Dockerfile#L32) with the required stuff to:
+We need our template present in our `ha` image. We have to add the following Docker instructions for that. Let's replace `TODO: [HB] Copy the haproxy configuration template` in [ha/Dockerfile](ha/Dockerfile#L32) with the required stuff to:
 
   1. Have a directory `/config`
   2. Have the `haproxy.cfg.hb` in it
@@ -1215,7 +1181,6 @@ while read -a values; do
 done
 ```
 
-<a name="ttb"></a>
 Time to build our `ha` image and run it. We will also run `s1` and `s2`. As usual, here
 are the commands to build and run our image and containers:
 
@@ -1286,12 +1251,8 @@ exit
 
 **Deliverables**:
 
-1. You probably noticed when we added `xz-utils`, we have to rebuild
-   the whole image which took some time. What can we do to mitigate
-   that? Take a look at the Docker documentation on
-   [image layers](https://docs.docker.com/engine/userguide/storagedriver/imagesandcontainers/#images-and-layers).
-   Tell us about the pros and cons to merge as much as possible of the
-   command. In other words, compare:
+1. You probably noticed when we added `xz-utils`, we have to rebuild the whole image which took some time. What can we do to mitigate that? Take a look at the Docker documentation on
+   [image layers](https://docs.docker.com/engine/userguide/storagedriver/imagesandcontainers/#images-and-layers). Tell us about the pros and cons to merge as much as possible of the command. In other words, compare:
 
   ```
   RUN command 1
@@ -1711,40 +1672,3 @@ and reacts to nodes coming and going!
    references to your readings for the improvements.
 
 3. (Optional:) Present a live demo where you add and remove a backend container.
-
-
-## Windows troubleshooting
-
-It appears that Windows users can encounter a `CRLF` vs. `LF` problem when the repos is cloned without taking care of the ending lines. Therefore, if the ending lines are `CRFL`, it will produce an error message with Docker: 
-
-```bash
-... no such file or directory
-```
-
-(Take a look to this Docker issue: https://github.com/docker/docker/issues/9066, the last post show the error message).
-
-The error message is not really relevant and difficult to troubleshoot. It seems the problem is caused by the line endings not correctly interpreted by Linux when they are `CRLF` in place of `LF`. The problem is caused by cloning the repos on Windows with a system that will not keep the `LF` in the files.
-
-Fortunatelly, there is a procedure to fix the `CRLF` to `LF` and then be sure Docker will recognize the `*.sh` files.
-
-First, you need to add the file `.gitattributes` file with the following content:
-
-```bash
-* text eol=lf
-```
-
-This will ask the repos to force the ending lines to `LF` for every text files.
-
-Then, you need to reset your repository. Be sure you do not have **modified** files.
-
-```bash
-# Erease all the files in your local repository
-git rm --cached -r .
-
-# Restore the files from your local repository and apply the correct ending lines (LF)
-git reset --hard
-```
-
-Then, you are ready to go.
-
-There is a link to deeper explanation and procedure about the ending lines written by GitHub: https://help.github.com/articles/dealing-with-line-endings/
