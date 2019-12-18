@@ -1,0 +1,7 @@
+$ docker exec -it ha /bin/bash
+root@4bf73e017734:/# cd /nodes/
+root@4bf73e017734:/nodes# ls -l
+total 4
+-rw-r--r-- 1 root root 26 Dec 18 15:27 bc567aae648e
+root@4bf73e017734:/nodes# cat bc567aae648e
+bc567aae648e 192.168.42.4

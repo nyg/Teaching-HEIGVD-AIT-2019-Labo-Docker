@@ -34,7 +34,7 @@ RUN chmod +x /etc/services.d/ha/run
 COPY services/serf /etc/services.d/serf
 RUN chmod +x /etc/services.d/serf/run
 
-# TODO: [Serf] Copy events handler scripts
+# [Serf] Copy events handler scripts
 COPY scripts/member-*.sh /serf-handlers/
 RUN chmod +x /serf-handlers/member-*.sh
 
@@ -42,13 +42,14 @@ RUN chmod +x /serf-handlers/member-*.sh
 COPY config/haproxy.cfg /usr/local/etc/haproxy/haproxy.cfg
 COPY config/rsyslogd.cfg /etc/rsyslog.d/49-haproxy.conf
 
-# TODO: [HB] Copy the haproxy configuration template
+# [HB] Copy the haproxy configuration template
 COPY config/haproxy.cfg.hb /config/
 
 # Clean up
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
-# TODO: [CFG] Create the nodes folder
+# [CFG] Create the nodes folder
+RUN mkdir /nodes
 
 # [Serf] Expose ports
 EXPOSE 7946 7373

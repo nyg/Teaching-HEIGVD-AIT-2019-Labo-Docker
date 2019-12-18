@@ -1290,32 +1290,20 @@ exit
 
 ### <a name="task-5"></a>Task 5: Generate a new load balancer configuration when membership changes
 
-> We now have S6 and Serf ready in our HAProxy image. We have member
-  join/leave handler scripts and we have the handlebars template
-  engine. So we have all the pieces ready to generate the HAProxy
-  configuration dynamically. We will update our handler scripts to
-  manage the list of nodes and to generate the HAProxy configuration
-  each time the cluster has a member leave/join event.  The work in
-  this task will let us solve the problem mentioned in [M4](#M4).
+> We now have S6 and Serf ready in our HAProxy image. We have member join/leave handler scripts and we have the handlebars template engine. So we have all the pieces ready to generate the HAProxy configuration dynamically. We will update our handler scripts to manage the list of nodes and to generate the HAProxy configuration each time the cluster has a member leave/join event.  The work in this task will let us solve the problem mentioned in [M4](#M4).
 
 At this stage, we have:
 
-  - Two images with `S6` process supervisor that starts a Serf agent
-    and an "application" (HAProxy or Node web app).
+  - Two images with `S6` process supervisor that starts a Serf agent and an "application" (HAProxy or Node web app).
+    
+  - The `ha` image contains the required stuff to react to `Serf` events when a container joins or leaves the `Serf` cluster.
+    
+  - A template engine in the `ha` image is ready to be used to generate the HAProxy configuration file.
 
-  - The `ha` image contains the required stuff to react to `Serf`
-    events when a container joins or leaves the `Serf` cluster.
+Now, we need to refine our `join` and `leave` scripts to generate a proper HAProxy configuration file.
 
-  - A template engine in the `ha` image is ready to be used to
-    generate the HAProxy configuration file.
-
-Now, we need to refine our `join` and `leave` scripts to generate a
-proper HAProxy configuration file.
-
-First, we will copy/paste the content of the
-[ha/config/haproxy.cfg](ha/config/haproxy.cfg) file into the template
-[ha/config/haproxy.cfg.hb](ha/config/haproxy.cfg.hb). You can simply
-run the following command:
+First, we will copy/paste the content of the [ha/config/haproxy.cfg](ha/config/haproxy.cfg) file into the template
+[ha/config/haproxy.cfg.hb](ha/config/haproxy.cfg.hb). You can simply run the following command:
 
 ```bash
 cp ha/config/haproxy.cfg ha/config/haproxy.cfg.hb
