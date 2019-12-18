@@ -936,10 +936,7 @@ docker run -d --network heig --name s1 <imageName>
 
 ### <a name="task-3"></a>Task 3: React to membership changes
 
-> Serf is really simple to use as it lets the user write their own shell
-  scripts to react to the cluster events. In this task we will
-  write the first bits and pieces of the handler scripts we need to build our solution.
-  We will start by just logging members that join the cluster and the members
+> Serf is really simple to use as it lets the user write their own shell scripts to react to the cluster events. In this task we will write the first bits and pieces of the handler scripts we need to build our solution. We will start by just logging members that join the cluster and the members
   that leave the cluster. We are preparing to solve concretely the issue
   discovered in [M4](#M4).
 
@@ -951,8 +948,8 @@ We will start by creating the scripts in [ha/scripts](ha/scripts). So create two
 this directory and set them as executable. You can use these commands:
 
 ```bash
-touch /ha/scripts/member-join.sh && chmod +x /ha/scripts/member-join.sh
-touch /ha/scripts/member-leave.sh && chmod +x /ha/scripts/member-leave.sh
+touch ha/scripts/member-join.sh && chmod +x ha/scripts/member-join.sh
+touch ha/scripts/member-leave.sh && chmod +x ha/scripts/member-leave.sh
 ```
 
 In the `member-join.sh` script, put the following content:
@@ -1040,7 +1037,7 @@ docker run -d --network heig --name s2 <imageName>
     the moment the communication between the reverse proxy and the backend
     nodes is broken.
 
-Once started, get the logs (**keep the logs**) of the backend container.
+TODO Once started, get the logs (**keep the logs**) of the backend container.
 
 To check there is something happening on the node `ha` you will need to connect
 to the running container to gather the custom log file that is created in the
