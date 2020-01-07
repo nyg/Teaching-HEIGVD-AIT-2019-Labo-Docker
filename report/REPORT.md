@@ -21,6 +21,9 @@
 
 ## <a name="introduction"></a>Introduction
 
+In this laboratory we are going to study the configuration of HAProxy and other component to see how we could implement a good cluster. We will be working with two nodes and HAProxy. We will be looking at how docker is working internally and discover more about docker layer. A `gossip protocol` will be studied and implemented to have a cluster with autodiscovery by the end of this laboratory.
+
+
 ## <a name="task-0"></a>Task 0: Identify issues and install the tools
 
 Screenshot of the HAProxy statistics page.
@@ -121,6 +124,8 @@ There are two folders in the `logs/task-2` folder:
 
 > 2. **Give the answer to the question about the existing problem with the current solution.**
 
+The problem with the current solution is that depending on which order we launch each container it won't work properly. If we start `s1` and `s2` before ha they won't join the cluster
+
 > 3. **Give an explanation on how `Serf` is working. Read the official website to get more details about the `GOSSIP` protocol used in `Serf`. Try to find other solutions that can be used to solve similar situations where we need some auto-discovery mechanism.**
 
 "Serf is a tool for cluster membership, failure detection, and orchestration that is decentralized, fault-tolerant and higly available" ([source](https://www.serf.io/intro/index.html)). Serf uses an upgraded version of SWIM (Scalable Weakly-consistent Infection-style Process Group Membership Protocol) which they upgraded themself to increase propagation speed and convergence rate. 
@@ -168,11 +173,15 @@ The second thing to consider is `layer caching`. Docker uses a `layer cache` to 
 
 > 2. **Propose a different approach to architecture our images to be able to reuse as much as possible what we have done. Your proposition should also try to avoid as much as possible repetitions between your images.**
 
+What we could do to avoid repetitions between our images is to make all commands present on the both side at first and then do the specific commands later. It means to make them inherit from the same image and then installing all required packages (all `apt install/get`, `serf`, `s6`) and later specific command. This way because of how docker images are working the install of the second image will be much faster.
+
 > 3. **Provide the `/tmp/haproxy.cfg` file generated in the `ha` container after each step.  Place the output into the `logs` folder like you already did for the Docker logs in the previous tasks. Three files are expected. In addition, provide a log file containing the output of the `docker ps` console and another file (per container) with `docker inspect <container>`. Four files are expected.**
 
 Provided in the logs folder.
 
 > 4. **Based on the three output files you have collected, what can you say about the way we generate it? What is the problem if any?**
+
+The problem is that each time a new node is connecting to the cluster the output file (the file that logs the connexions) is overwritten and only the ip of the last node who joined the cluster is reported. Therefore we can't keep a good log file and that's not really good.
 
 ## <a name="task-5"></a>Task 5: Generate a new load balancer configuration when membership changes
 
@@ -220,6 +229,12 @@ Provided in the logs folder (task-6).
 
 > 2. **Give your own feelings about the final solution. Propose improvements or ways to do the things differently. If any, provide references to your readings for the improvements.**
 
+This solution seems to be a good way of implementing a cluster with autodiscovery of nodes however it wasn't that easy to configure everything as we wanted. It could probably be better but it gets the job done.
+
 ## <a name="difficulties"></a>Difficulties found
 
+The configuration was quite heavy and we weren't sure of what we were doing until the end where everything comes together. Also it wasn't really clear to us whether we were supposed to use `docker-compose` or `docker run`.
+
 ## <a name="conclusion"></a>Conclusion
+
+This laboratory has helped us better understand how to deal with cluster management when we're using a auto discovery protocol such as Serf. We also learned about the different protocol that could also provides a `gossip protocol` and how they operate withing a given cluster. We also learned more about `haproxy`.

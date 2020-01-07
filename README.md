@@ -30,13 +30,19 @@ report should be in Markdown format directly in the repository.
 The lab consists of 6 tasks and one initial task (the initial task
 should be quick if you already completed the lab on load balancing):
 
-0. [Identify issues and install the tools](#task-0)
-1. [Add a process supervisor to run several processes](#task-1)
-2. [Add a tool to manage membership in the web server cluster](#task-2)
-3. [React to membership changes](#task-3)
-4. [Use a template engine to easily generate configuration files](#task-4)
-5. [Generate a new load balancer configuration when membership changes](#task-5)
-6. [Make the load balancer automatically reload the new configuration](#task-6)
+- [title: Lab 04 - Docker](#title-lab-04---docker)
+- [Lab 04 - Docker](#lab-04---docker)
+    - [Pedagogical objectives](#pedagogical-objectives)
+    - [Instructions for the lab report](#instructions-for-the-lab-report)
+  - [Task 0: Identify issues and install the tools](#task-0-identify-issues-and-install-the-tools)
+    - [Identify issues](#identify-issues)
+    - [Install the tools](#install-the-tools)
+  - [Task 1: Add a process supervisor to run several processes](#task-1-add-a-process-supervisor-to-run-several-processes)
+  - [Task 2: Add a tool to manage membership in the web server cluster](#task-2-add-a-tool-to-manage-membership-in-the-web-server-cluster)
+  - [Task 3: React to membership changes](#task-3-react-to-membership-changes)
+  - [Task 4: Use a template engine to easily generate configuration files](#task-4-use-a-template-engine-to-easily-generate-configuration-files)
+  - [Task 5: Generate a new load balancer configuration when membership changes](#task-5-generate-a-new-load-balancer-configuration-when-membership-changes)
+  - [Task 6: Make the load balancer automatically reload the new configuration](#task-6-make-the-load-balancer-automatically-reload-the-new-configuration)
 
 **Remarks**:
 
